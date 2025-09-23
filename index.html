@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Paste Hosting | Premium</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #a5b4fc;
+            --accent: #8b5cf6;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
+            --transition: all 0.3s ease;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --bg-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark);
+        }
+        
+        /* HOMEPAGE */
+        .home-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+            width: 100%;
+        }
+        
+        .home-page h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .home-page .tagline {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+            text-align: center;
+            color: white;
+            opacity: 0;
+            animation: fadeUp 0.8s forwards;
+            transition: transform 0.3s ease, background 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-card:nth-child(1) { animation-delay: 0.3s; }
+        .feature-card:nth-child(2) { animation-delay: 0.6s; }
+        .feature-card:nth-child(3) { animation-delay: 0.9s; }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: var(--shadow);
+        }
+        
+        .feature-card i {
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .feature-card p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* AUTH */
+        .auth-page {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            width: 100%;
+        }
+        
+        .auth-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .auth-card h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .auth-card input {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            transition: var(--transition);
+        }
+        
+        .auth-card input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+        
+        .auth-card button {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        
+        .switch-link {
+            margin-top: 1.5rem;
+            cursor: pointer;
+            text-decoration: underline;
+            opacity: 0.9;
+            transition: var(--transition);
+        }
+        
+        .switch-link:hover {
+            opacity: 1;
+        }
+        
+        /* APP */
+        .container {
+            display: none;
+            width: 100%;
+            max-width: 1400px;
+            background: var(--light);
+            border-radius: 20px;
+            margin: 2rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            min-height: 80vh;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .vip-badge {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-logout {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-logout:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .app-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .app-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-section h2 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-section textarea {
+            width: 100%;
+            min-height: 300px;
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 1.2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: var(--transition);
+        }
+        
+        .form-section textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .button-group {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        
+        .button-group button {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .button-group .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .button-group .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+        
+        .button-group .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-600);
+        }
+        
+        .button-group .btn-secondary:hover {
+            background: var(--gray-300);
+        }
+        
+        .snippets-section {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .snippets-section h2 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .snippets-list {
+            flex: 1;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .snippets-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .snippets-list::-webkit-scrollbar-track {
+            background: var(--gray-200);
+            border-radius: 10px;
+        }
+        
+        .snippets-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        .snippet-item {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+            transition: var(--transition);
+        }
+        
+        .snippet-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .snippet-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            align-items: flex-start;
+        }
+        
+        .snippet-title {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        
+        .snippet-date {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            white-space: nowrap;
+            margin-left: 1rem;
+        }
+        
+        .snippet-preview {
+            color: var(--gray-600);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+            max-height: 80px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .snippet-preview:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, var(--light));
+        }
+        
+        .snippet-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .snippet-actions button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .btn-load {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-load:hover {
+            background: var(--primary-dark);
+        }
+        
+        .btn-share {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-share:hover {
+            background: #7c3aed;
+        }
+        
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+        
+        .no-snippets {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--gray-600);
+        }
+        
+        .no-snippets i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-header h3 {
+            color: var(--dark);
+            font-size: 1.4rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-600);
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            color: var(--dark);
+        }
+        
+        .share-link {
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            word-break: break-all;
+            font-family: monospace;
+            border: 1px dashed var(--gray-300);
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Admin Panel */
+        .admin-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .admin-panel h2 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 600;
+        }
+        
+        .user-vip {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+        
+        .vip-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .vip-controls button {
+            padding: 0.3rem 0.6rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .btn-vip-up {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-vip-down {
+            background: var(--warning);
+            color: white;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            max-width: 350px;
+            animation: toastSlideIn 0.3s ease;
+        }
+        
+        @keyframes toastSlideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast-success {
+            background: var(--success);
+        }
+        
+        .toast-error {
+            background: var(--danger);
+        }
+        
+        .toast-warning {
+            background: var(--warning);
+        }
+        
+        .toast i {
+            font-size: 1.2rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .home-page h1 {
+                font-size: 2.2rem;
+            }
+            
+            .home-page .tagline {
+                font-size: 1.1rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .user-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .user-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .vip-controls {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HOMEPAGE -->
+    <section id="homePage" class="home-page">
+        <h1><i class="fas fa-code"></i> HTML Paste Hosting</h1>
+        <p class="tagline">Simpan & bagikan kode HTML Anda dengan cara premium. Platform aman dan cepat untuk developer.</p>
+        <button class="btn btn-primary" onclick="goAuth()">
+            <i class="fas fa-rocket"></i> Mulai Sekarang
+        </button>
+        
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Keamanan Premium</h3>
+                <p>Kode HTML Anda dienkripsi dan disimpan dengan standar keamanan tertinggi untuk melindungi karya Anda dari akses tidak sah.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Performa Tinggi</h3>
+                <p>Infrastruktur server yang cepat dan andal memastikan kode Anda selalu dapat diakses dengan loading time minimal.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-infinity"></i>
+                <h3>Akses Unlimited</h3>
+                <p>Simpan dan bagikan sebanyak yang Anda mau tanpa batasan jumlah penyimpanan atau ukuran file dengan paket VIP.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOGIN/REGISTER -->
+    <section id="authPage" class="auth-page">
+        <div class="auth-card" id="loginCard">
+            <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+            <input type="text" id="loginUser" placeholder="Username">
+            <input type="password" id="loginPass" placeholder="Password">
+            <button class="btn btn-primary" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i> Masuk
+            </button>
+            <div class="switch-link" onclick="showRegister()">Belum punya akun? Daftar di sini</div>
+        </div>
+        
+        <div class="auth-card" id="registerCard" style="display:none;">
+            <h2><i class="fas fa-user-plus"></i> Daftar</h2>
+            <input type="text" id="regUser" placeholder="Username">
+            <input type="password" id="regPass" placeholder="Password">
+            <button class="btn btn-primary" onclick="register()">
+                <i class="fas fa-user-plus"></i> Daftar
+            </button>
+            <div class="switch-link" onclick="showLogin()">Sudah punya akun? Login di sini</div>
+        </div>
+    </section>
+
+    <!-- APP -->
+    <div class="container" id="appContainer">
+        <header>
+            <h1><i class="fas fa-code"></i> Editor Kode Premium</h1>
+            <div class="user-info">
+                <div class="vip-badge" id="vipStatus">
+                    <i class="fas fa-crown"></i> <span>VIP 0</span>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+        
+        <div class="app-content">
+            <div class="form-section">
+                <h2><i class="fas fa-edit"></i> Editor Kode</h2>
+                <textarea id="htmlcode" placeholder="Tempel kode HTML di sini..."></textarea>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="saveCode()">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                    <button class="btn-secondary" onclick="clearCode()">
+                        <i class="fas fa-eraser"></i> Bersihkan
+                    </button>
+                    <button class="btn-secondary" onclick="previewCode()">
+                        <i class="fas fa-eye"></i> Pratinjau
+                    </button>
+                </div>
+            </div>
+            
+            <div class="snippets-section">
+                <h2><i class="fas fa-history"></i> Kode Tersimpan</h2>
+                <div class="snippets-list" id="snippetsList">
+                    <!-- Snippets will be loaded here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Panel (only visible to admin) -->
+        <div class="admin-panel" id="adminPanel" style="display: none;">
+            <h2><i class="fas fa-user-shield"></i> Panel Admin</h2>
+            <div class="user-list" id="userList">
+                <!-- User list will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-share-alt"></i> Bagikan Kode</h3>
+                <button class="modal-close" onclick="closeModal('shareModal')">&times;</button>
+            </div>
+            <p>Salin tautan berikut untuk membagikan kode Anda:</p>
+            <div class="share-link" id="shareLink"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('shareModal')">Tutup</button>
+                <button class="btn-primary" onclick="copyShareLink()">
+                    <i class="fas fa-copy"></i> Salin Tautan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentUser = null;
+        let snippets = [];
+        const ADMIN_USERNAME = "admin"; // Default admin username
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = savedUser;
+                showApp();
+            }
+            
+            // Initialize admin user if not exists
+            if (!localStorage.getItem("user_" + ADMIN_USERNAME)) {
+                localStorage.setItem("user_" + ADMIN_USERNAME, JSON.stringify({
+                    pass: "admin123", // Default admin password
+                    vip: 3, // Admin has VIP level 3
+                    codes: [],
+                    nextId: 1,
+                    isAdmin: true
+                }));
+            }
+        });
+
+        // Navigation
+        function goAuth() {
+            document.getElementById('homePage').style.display = "none";
+            document.getElementById('authPage').style.display = "flex";
+        }
+        
+        function showRegister() {
+            document.getElementById('loginCard').style.display = "none";
+            document.getElementById('registerCard').style.display = "block";
+        }
+        
+        function showLogin() {
+            document.getElementById('registerCard').style.display = "none";
+            document.getElementById('loginCard').style.display = "block";
+        }
+        
+        function showApp() {
+            document.getElementById('homePage').style.display = "none";
+            document.getElementById('authPage').style.display = "none";
+            document.getElementById('appContainer').style.display = "block";
+            updateVipStatus();
+            loadSnippets();
+            
+            // Show admin panel if user is admin
+            if (isAdmin()) {
+                document.getElementById('adminPanel').style.display = 'block';
+                loadUserList();
+            }
+        }
+
+        // Check if current user is admin
+        function isAdmin() {
+            const userData = JSON.parse(localStorage.getItem("user_" + currentUser) || '{}');
+            return userData.isAdmin === true || currentUser === ADMIN_USERNAME;
+        }
+
+        // Register/Login
+        function register() {
+            const user = document.getElementById('regUser').value.trim();
+            const pass = document.getElementById('regPass').value;
+            
+            if (!user || !pass) {
+                showToast('Lengkapi data!', 'error');
+                return;
+            }
+            
+            if (user.length < 3) {
+                showToast('Username minimal 3 karakter!', 'error');
+                return;
+            }
+            
+            if (pass.length < 6) {
+                showToast('Password minimal 6 karakter!', 'error');
+                return;
+            }
+            
+            if (localStorage.getItem("user_" + user)) {
+                showToast('Username sudah digunakan!', 'error');
+                return;
+            }
+            
+            localStorage.setItem("user_" + user, JSON.stringify({
+                pass: pass,
+                vip: 0,
+                codes: [],
+                nextId: 1,
+                isAdmin: false
+            }));
+            
+            showToast('Registrasi berhasil! Akun Anda VIP 0.', 'success');
+            showLogin();
+            // Clear registration form
+            document.getElementById('regUser').value = '';
+            document.getElementById('regPass').value = '';
+        }
+        
+        function login() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            
+            if (!user || !pass) {
+                showToast('Lengkapi data!', 'error');
+                return;
+            }
+            
+            let data = localStorage.getItem("user_" + user);
+            if (data) {
+                data = JSON.parse(data);
+                if (data.pass === pass) {
+                    currentUser = user;
+                    localStorage.setItem('currentUser', user);
+                    showToast('Login sukses!', 'success');
+                    showApp();
+                } else {
+                    showToast('Password salah!', 'error');
+                }
+            } else {
+                showToast('User tidak ditemukan!', 'error');
+            }
+        }
+        
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('appContainer').style.display = "none";
+            document.getElementById('homePage').style.display = "flex";
+            // Clear login form
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+        }
+
+        // VIP Management
+        function updateVipStatus() {
+            let data = JSON.parse(localStorage.getItem("user_" + currentUser));
+            document.getElementById('vipStatus').innerHTML = `<i class="fas fa-crown"></i> <span>VIP ${data.vip}</span>`;
+        }
+        
+        // Admin function to change user VIP level
+        function changeUserVip(username, newVipLevel) {
+            if (!isAdmin()) {
+                showToast('Hanya admin yang dapat mengubah level VIP!', 'error');
+                return;
+            }
+            
+            if (username === ADMIN_USERNAME) {
+                showToast('Tidak dapat mengubah level VIP admin!', 'error');
+                return;
+            }
+            
+            const userData = JSON.parse(localStorage.getItem("user_" + username));
+            if (userData) {
+                userData.vip = newVipLevel;
+                localStorage.setItem("user_" + username, JSON.stringify(userData));
+                showToast(`Level VIP ${username} diubah menjadi ${newVipLevel}`, 'success');
+                
+                // Reload user list
+                loadUserList();
+                
+                // If the modified user is the current user, update their status
+                if (currentUser === username) {
+                    updateVipStatus();
+                    loadSnippets();
+                }
+            }
+        }
+        
+        // Load user list for admin panel
+        function loadUserList() {
+            if (!isAdmin()) return;
+            
+            const userList = document.getElementById('userList');
+            userList.innerHTML = '';
+            
+            // Get all users from localStorage
+            const users = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('user_')) {
+                    const username = key.substring(5); // Remove 'user_' prefix
+                    if (username !== ADMIN_USERNAME) { // Don't show admin in the list
+                        const userData = JSON.parse(localStorage.getItem(key));
+                        users.push({
+                            username: username,
+                            vip: userData.vip || 0
+                        });
+                    }
+                }
+            }
+            
+            if (users.length === 0) {
+                userList.innerHTML = '<p>Tidak ada pengguna terdaftar.</p>';
+                return;
+            }
+            
+            // Sort users by username
+            users.sort((a, b) => a.username.localeCompare(b.username));
+            
+            // Create user list items
+            users.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = `
+                    <div class="user-details">
+                        <span class="user-name">${user.username}</span>
+                        <span class="user-vip">VIP Level: ${user.vip}</span>
+                    </div>
+                    <div class="vip-controls">
+                        <button class="btn-vip-up" onclick="changeUserVip('${user.username}', ${user.vip + 1})">
+                            <i class="fas fa-arrow-up"></i> Naikkan
+                        </button>
+                        <button class="btn-vip-down" onclick="changeUserVip('${user.username}', ${Math.max(0, user.vip - 1)})">
+                            <i class="fas fa-arrow-down"></i> Turunkan
+                        </button>
+                    </div>
+                `;
+                userList.appendChild(userItem);
+            });
+        }
+
+        // Snippets Management
+        function loadSnippets() {
+            const data = JSON.parse(localStorage.getItem("user_" + currentUser));
+            snippets = data.codes || [];
+            
+            const snippetsList = document.getElementById('snippetsList');
+            
+            if (snippets.length === 0) {
+                snippetsList.innerHTML = `
+                    <div class="no-snippets">
+                        <i class="fas fa-code"></i>
+                        <p>Belum ada kode yang disimpan</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort snippets by date (newest first)
+            snippets.sort((a, b) => new Date(b.time) - new Date(a.time));
+            
+            snippetsList.innerHTML = snippets.map(snippet => `
+                <div class="snippet-item">
+                    <div class="snippet-header">
+                        <span class="snippet-title">Kode #${snippet.id}</span>
+                        <span class="snippet-date">${formatDate(snippet.time)}</span>
+                    </div>
+                    <div class="snippet-preview">${escapeHtml(snippet.code.substring(0, 150))}${snippet.code.length > 150 ? '...' : ''}</div>
+                    <div class="snippet-actions">
+                        <button class="btn-load" onclick="loadSnippet(${snippet.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn-share" onclick="shareSnippet(${snippet.id})">
+                            <i class="fas fa-share"></i> Bagikan
+                        </button>
+                        <button class="btn-delete" onclick="deleteSnippet(${snippet.id})">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'});
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function loadSnippet(id) {
+            const snippet = snippets.find(s => s.id === id);
+            if (snippet) {
+                document.getElementById('htmlcode').value = snippet.code;
+                showToast('Kode dimuat ke editor!', 'success');
+                
+                // Scroll to editor
+                document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        function deleteSnippet(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus kode ini?')) {
+                const data = JSON.parse(localStorage.getItem("user_" + currentUser));
+                data.codes = data.codes.filter(s => s.id !== id);
+                localStorage.setItem("user_" + currentUser, JSON.stringify(data));
+                loadSnippets();
+                showToast('Kode berhasil dihapus!', 'success');
+            }
+        }
+
+        // Editor
+        function saveCode() {
+            const code = document.getElementById('htmlcode').value.trim();
+            if (!code) {
+                showToast('Masukkan kode!', 'error');
+                return;
+            }
+            
+            let data = JSON.parse(localStorage.getItem("user_" + currentUser));
+            let maxCodes = (data.vip === 0) ? 1 : (data.vip === 1 ? 5 : 9999);
+            
+            if (data.codes.length >= maxCodes) {
+                showToast(`Batas penyimpanan tercapai! (Batas VIP ${data.vip} = ${maxCodes})`, 'error');
+                return;
+            }
+            
+            // Generate unique ID for the snippet
+            const newId = data.nextId++;
+            
+            data.codes.push({
+                id: newId,
+                code: code,
+                time: new Date().toISOString()
+            });
+            
+            localStorage.setItem("user_" + currentUser, JSON.stringify(data));
+            showToast('Kode disimpan!', 'success');
+            loadSnippets();
+        }
+        
+        function clearCode() {
+            document.getElementById('htmlcode').value = "";
+            showToast('Editor dibersihkan!', 'success');
+        }
+        
+        function previewCode() {
+            const code = document.getElementById('htmlcode').value;
+            if (!code.trim()) {
+                showToast('Tidak ada kode untuk dipratinjau!', 'error');
+                return;
+            }
+            
+            const w = window.open();
+            w.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Pratinjau Kode</title>
+                    <style>body { margin: 20px; font-family: Arial, sans-serif; }</style>
+                </head>
+                <body>
+                    ${code}
+                </body>
+                </html>
+            `);
+            w.document.close();
+        }
+
+        // Sharing
+        function shareSnippet(id) {
+            const snippet = snippets.find(s => s.id === id);
+            if (!snippet) return;
+            
+            // In a real app, this would generate a unique URL on the server
+            // For this demo, we'll create a data URL
+            const shareUrl = `${window.location.origin}${window.location.pathname}?share=${currentUser}_${id}`;
+            document.getElementById('shareLink').textContent = shareUrl;
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+        
+        function copyShareLink() {
+            const shareLink = document.getElementById('shareLink').textContent;
+            navigator.clipboard.writeText(shareLink)
+                .then(() => showToast('Tautan disalin ke clipboard!', 'success'))
+                .catch(() => showToast('Gagal menyalin tautan', 'error'));
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle'
+            };
+            
+            toast.innerHTML = `<i class="${icons[type]}"></i> ${message}`;
+            toast.className = `toast toast-${type}`;
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
