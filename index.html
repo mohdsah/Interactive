@@ -892,12 +892,79 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // Inisialisasi variabel global
         let currentUser = null;
         let snippets = [];
         const ADMIN_USERNAME = "admin"; // Default admin username
-        const BASE_URL = "https://klick4link.netlify.app/"; // Your base URL
+        const BASE_URL = window.location.origin + window.location.pathname; // Current URL
 
-        // Initialize app
+        // Fungsi untuk generate random code
+        function generateRandomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 8; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Fungsi untuk escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Fungsi untuk format tanggal
+        function formatDate(dateString) {
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'});
+            } catch (e) {
+                return 'Tanggal tidak valid';
+            }
+        }
+
+        // Fungsi untuk menampilkan toast notifikasi
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle'
+            };
+            
+            toast.innerHTML = `<i class="${icons[type] || icons.success}"></i> ${message}`;
+            toast.className = `toast toast-${type}`;
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
+        // Fungsi untuk menutup modal
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Fungsi untuk memeriksa apakah user adalah admin
+        function isAdmin() {
+            if (!currentUser) return false;
+            
+            try {
+                const userData = JSON.parse(localStorage.getItem("user_" + currentUser) || '{}');
+                return userData.isAdmin === true || currentUser === ADMIN_USERNAME;
+            } catch (e) {
+                console.error('Error checking admin status:', e);
+                return false;
+            }
+        }
+
+        // Inisialisasi app saat DOM siap
         document.addEventListener('DOMContentLoaded', function() {
             // Check if user is already logged in
             const savedUser = localStorage.getItem('currentUser');
@@ -907,14 +974,18 @@
             }
             
             // Initialize admin user if not exists
-            if (!localStorage.getItem("user_" + ADMIN_USERNAME)) {
-                localStorage.setItem("user_" + ADMIN_USERNAME, JSON.stringify({
-                    pass: "admin123", // Default admin password
-                    vip: 3, // Admin has VIP level 3
-                    codes: [],
-                    nextId: 1,
-                    isAdmin: true
-                }));
+            try {
+                if (!localStorage.getItem("user_" + ADMIN_USERNAME)) {
+                    localStorage.setItem("user_" + ADMIN_USERNAME, JSON.stringify({
+                        pass: "admin123", // Default admin password
+                        vip: 3, // Admin has VIP level 3
+                        codes: [],
+                        nextId: 1,
+                        isAdmin: true
+                    }));
+                }
+            } catch (e) {
+                console.error('Error initializing admin user:', e);
             }
             
             // Check if there's a code ID in the URL parameters
@@ -927,7 +998,7 @@
             }
         });
 
-        // Navigation
+        // Navigation functions
         function goAuth() {
             document.getElementById('homePage').style.display = "none";
             document.getElementById('authPage').style.display = "flex";
@@ -944,433 +1015,528 @@
         }
         
         function showApp() {
-            document.getElementById('homePage').style.display = "none";
-            document.getElementById('authPage').style.display = "none";
-            document.getElementById('appContainer').style.display = "block";
-            updateVipStatus();
-            loadSnippets();
-            
-            // Show admin panel if user is admin
-            if (isAdmin()) {
-                document.getElementById('adminPanel').style.display = 'block';
-                loadUserList();
+            try {
+                document.getElementById('homePage').style.display = "none";
+                document.getElementById('authPage').style.display = "none";
+                document.getElementById('appContainer').style.display = "block";
+                updateVipStatus();
+                loadSnippets();
+                
+                // Show admin panel if user is admin
+                if (isAdmin()) {
+                    const adminPanel = document.getElementById('adminPanel');
+                    if (adminPanel) {
+                        adminPanel.style.display = 'block';
+                        loadUserList();
+                    }
+                }
+            } catch (e) {
+                console.error('Error showing app:', e);
+                showToast('Error loading application', 'error');
             }
         }
 
-        // Check if current user is admin
-        function isAdmin() {
-            const userData = JSON.parse(localStorage.getItem("user_" + currentUser) || '{}');
-            return userData.isAdmin === true || currentUser === ADMIN_USERNAME;
-        }
-
-        // Register/Login
+        // Register/Login functions
         function register() {
-            const user = document.getElementById('regUser').value.trim();
-            const pass = document.getElementById('regPass').value;
-            
-            if (!user || !pass) {
-                showToast('Lengkapi data!', 'error');
-                return;
+            try {
+                const user = document.getElementById('regUser').value.trim();
+                const pass = document.getElementById('regPass').value;
+                
+                if (!user || !pass) {
+                    showToast('Lengkapi data!', 'error');
+                    return;
+                }
+                
+                if (user.length < 3) {
+                    showToast('Username minimal 3 karakter!', 'error');
+                    return;
+                }
+                
+                if (pass.length < 6) {
+                    showToast('Password minimal 6 karakter!', 'error');
+                    return;
+                }
+                
+                if (localStorage.getItem("user_" + user)) {
+                    showToast('Username sudah digunakan!', 'error');
+                    return;
+                }
+                
+                localStorage.setItem("user_" + user, JSON.stringify({
+                    pass: pass,
+                    vip: 0,
+                    codes: [],
+                    nextId: 1,
+                    isAdmin: false
+                }));
+                
+                showToast('Registrasi berhasil! Akun Anda VIP 0.', 'success');
+                showLogin();
+                // Clear registration form
+                document.getElementById('regUser').value = '';
+                document.getElementById('regPass').value = '';
+            } catch (e) {
+                console.error('Error during registration:', e);
+                showToast('Error during registration', 'error');
             }
-            
-            if (user.length < 3) {
-                showToast('Username minimal 3 karakter!', 'error');
-                return;
-            }
-            
-            if (pass.length < 6) {
-                showToast('Password minimal 6 karakter!', 'error');
-                return;
-            }
-            
-            if (localStorage.getItem("user_" + user)) {
-                showToast('Username sudah digunakan!', 'error');
-                return;
-            }
-            
-            localStorage.setItem("user_" + user, JSON.stringify({
-                pass: pass,
-                vip: 0,
-                codes: [],
-                nextId: 1,
-                isAdmin: false
-            }));
-            
-            showToast('Registrasi berhasil! Akun Anda VIP 0.', 'success');
-            showLogin();
-            // Clear registration form
-            document.getElementById('regUser').value = '';
-            document.getElementById('regPass').value = '';
         }
         
         function login() {
-            const user = document.getElementById('loginUser').value.trim();
-            const pass = document.getElementById('loginPass').value;
-            
-            if (!user || !pass) {
-                showToast('Lengkapi data!', 'error');
-                return;
-            }
-            
-            let data = localStorage.getItem("user_" + user);
-            if (data) {
-                data = JSON.parse(data);
-                if (data.pass === pass) {
-                    currentUser = user;
-                    localStorage.setItem('currentUser', user);
-                    showToast('Login sukses!', 'success');
-                    showApp();
-                } else {
-                    showToast('Password salah!', 'error');
+            try {
+                const user = document.getElementById('loginUser').value.trim();
+                const pass = document.getElementById('loginPass').value;
+                
+                if (!user || !pass) {
+                    showToast('Lengkapi data!', 'error');
+                    return;
                 }
-            } else {
-                showToast('User tidak ditemukan!', 'error');
+                
+                let data = localStorage.getItem("user_" + user);
+                if (data) {
+                    data = JSON.parse(data);
+                    if (data.pass === pass) {
+                        currentUser = user;
+                        localStorage.setItem('currentUser', user);
+                        showToast('Login sukses!', 'success');
+                        showApp();
+                    } else {
+                        showToast('Password salah!', 'error');
+                    }
+                } else {
+                    showToast('User tidak ditemukan!', 'error');
+                }
+            } catch (e) {
+                console.error('Error during login:', e);
+                showToast('Error during login', 'error');
             }
         }
         
         function logout() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            document.getElementById('appContainer').style.display = "none";
-            document.getElementById('homePage').style.display = "flex";
-            // Clear login form
-            document.getElementById('loginUser').value = '';
-            document.getElementById('loginPass').value = '';
+            try {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                document.getElementById('appContainer').style.display = "none";
+                document.getElementById('homePage').style.display = "flex";
+                // Clear login form
+                document.getElementById('loginUser').value = '';
+                document.getElementById('loginPass').value = '';
+            } catch (e) {
+                console.error('Error during logout:', e);
+            }
         }
 
         // VIP Management
         function updateVipStatus() {
-            let data = JSON.parse(localStorage.getItem("user_" + currentUser));
-            document.getElementById('vipStatus').innerHTML = `<i class="fas fa-crown"></i> <span>VIP ${data.vip}</span>`;
+            try {
+                let data = JSON.parse(localStorage.getItem("user_" + currentUser));
+                const vipStatus = document.getElementById('vipStatus');
+                if (vipStatus) {
+                    vipStatus.innerHTML = `<i class="fas fa-crown"></i> <span>VIP ${data?.vip || 0}</span>`;
+                }
+            } catch (e) {
+                console.error('Error updating VIP status:', e);
+            }
         }
         
         // Admin function to change user VIP level
         function changeUserVip(username, newVipLevel) {
-            if (!isAdmin()) {
-                showToast('Hanya admin yang dapat mengubah level VIP!', 'error');
-                return;
-            }
-            
-            if (username === ADMIN_USERNAME) {
-                showToast('Tidak dapat mengubah level VIP admin!', 'error');
-                return;
-            }
-            
-            const userData = JSON.parse(localStorage.getItem("user_" + username));
-            if (userData) {
-                userData.vip = newVipLevel;
-                localStorage.setItem("user_" + username, JSON.stringify(userData));
-                showToast(`Level VIP ${username} diubah menjadi ${newVipLevel}`, 'success');
-                
-                // Reload user list
-                loadUserList();
-                
-                // If the modified user is the current user, update their status
-                if (currentUser === username) {
-                    updateVipStatus();
-                    loadSnippets();
+            try {
+                if (!isAdmin()) {
+                    showToast('Hanya admin yang dapat mengubah level VIP!', 'error');
+                    return;
                 }
+                
+                if (username === ADMIN_USERNAME) {
+                    showToast('Tidak dapat mengubah level VIP admin!', 'error');
+                    return;
+                }
+                
+                const userData = JSON.parse(localStorage.getItem("user_" + username));
+                if (userData) {
+                    userData.vip = newVipLevel;
+                    localStorage.setItem("user_" + username, JSON.stringify(userData));
+                    showToast(`Level VIP ${username} diubah menjadi ${newVipLevel}`, 'success');
+                    
+                    // Reload user list
+                    loadUserList();
+                    
+                    // If the modified user is the current user, update their status
+                    if (currentUser === username) {
+                        updateVipStatus();
+                        loadSnippets();
+                    }
+                } else {
+                    showToast('User tidak ditemukan!', 'error');
+                }
+            } catch (e) {
+                console.error('Error changing VIP level:', e);
+                showToast('Error changing VIP level', 'error');
             }
         }
         
         // Load user list for admin panel
         function loadUserList() {
-            if (!isAdmin()) return;
-            
-            const userList = document.getElementById('userList');
-            userList.innerHTML = '';
-            
-            // Get all users from localStorage
-            const users = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('user_')) {
-                    const username = key.substring(5); // Remove 'user_' prefix
-                    if (username !== ADMIN_USERNAME) { // Don't show admin in the list
-                        const userData = JSON.parse(localStorage.getItem(key));
-                        users.push({
-                            username: username,
-                            vip: userData.vip || 0
-                        });
+            try {
+                if (!isAdmin()) return;
+                
+                const userList = document.getElementById('userList');
+                if (!userList) return;
+                
+                userList.innerHTML = '';
+                
+                // Get all users from localStorage
+                const users = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('user_')) {
+                        const username = key.substring(5); // Remove 'user_' prefix
+                        if (username !== ADMIN_USERNAME) { // Don't show admin in the list
+                            try {
+                                const userData = JSON.parse(localStorage.getItem(key));
+                                users.push({
+                                    username: username,
+                                    vip: userData.vip || 0
+                                });
+                            } catch (e) {
+                                console.error('Error parsing user data for:', username, e);
+                            }
+                        }
                     }
                 }
+                
+                if (users.length === 0) {
+                    userList.innerHTML = '<p>Tidak ada pengguna terdaftar.</p>';
+                    return;
+                }
+                
+                // Sort users by username
+                users.sort((a, b) => a.username.localeCompare(b.username));
+                
+                // Create user list items
+                users.forEach(user => {
+                    const userItem = document.createElement('div');
+                    userItem.className = 'user-item';
+                    userItem.innerHTML = `
+                        <div class="user-details">
+                            <span class="user-name">${escapeHtml(user.username)}</span>
+                            <span class="user-vip">VIP Level: ${user.vip}</span>
+                        </div>
+                        <div class="vip-controls">
+                            <button class="btn-vip-up" onclick="changeUserVip('${user.username}', ${user.vip + 1})">
+                                <i class="fas fa-arrow-up"></i> Naikkan
+                            </button>
+                            <button class="btn-vip-down" onclick="changeUserVip('${user.username}', ${Math.max(0, user.vip - 1)})">
+                                <i class="fas fa-arrow-down"></i> Turunkan
+                            </button>
+                        </div>
+                    `;
+                    userList.appendChild(userItem);
+                });
+            } catch (e) {
+                console.error('Error loading user list:', e);
             }
-            
-            if (users.length === 0) {
-                userList.innerHTML = '<p>Tidak ada pengguna terdaftar.</p>';
-                return;
-            }
-            
-            // Sort users by username
-            users.sort((a, b) => a.username.localeCompare(b.username));
-            
-            // Create user list items
-            users.forEach(user => {
-                const userItem = document.createElement('div');
-                userItem.className = 'user-item';
-                userItem.innerHTML = `
-                    <div class="user-details">
-                        <span class="user-name">${user.username}</span>
-                        <span class="user-vip">VIP Level: ${user.vip}</span>
-                    </div>
-                    <div class="vip-controls">
-                        <button class="btn-vip-up" onclick="changeUserVip('${user.username}', ${user.vip + 1})">
-                            <i class="fas fa-arrow-up"></i> Naikkan
-                        </button>
-                        <button class="btn-vip-down" onclick="changeUserVip('${user.username}', ${Math.max(0, user.vip - 1)})">
-                            <i class="fas fa-arrow-down"></i> Turunkan
-                        </button>
-                    </div>
-                `;
-                userList.appendChild(userItem);
-            });
-        }
-
-        // Generate random code ID
-        function generateRandomCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < 8; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
         }
 
         // Snippets Management
         function loadSnippets() {
-            const data = JSON.parse(localStorage.getItem("user_" + currentUser));
-            snippets = data.codes || [];
-            
-            const snippetsList = document.getElementById('snippetsList');
-            
-            if (snippets.length === 0) {
-                snippetsList.innerHTML = `
-                    <div class="no-snippets">
-                        <i class="fas fa-code"></i>
-                        <p>Belum ada kode yang disimpan</p>
-                    </div>
-                `;
-                return;
+            try {
+                if (!currentUser) return;
+                
+                const data = JSON.parse(localStorage.getItem("user_" + currentUser) || '{}');
+                snippets = data.codes || [];
+                
+                const snippetsList = document.getElementById('snippetsList');
+                if (!snippetsList) return;
+                
+                if (snippets.length === 0) {
+                    snippetsList.innerHTML = `
+                        <div class="no-snippets">
+                            <i class="fas fa-code"></i>
+                            <p>Belum ada kode yang disimpan</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Sort snippets by date (newest first)
+                snippets.sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
+                
+                snippetsList.innerHTML = snippets.map(snippet => {
+                    const randomId = snippet.randomId || generateRandomCode();
+                    const codePreview = snippet.code ? escapeHtml(snippet.code.substring(0, 150)) : '';
+                    const hasMore = snippet.code && snippet.code.length > 150;
+                    
+                    return `
+                        <div class="snippet-item">
+                            <div class="snippet-header">
+                                <span class="snippet-title">Kode #${snippet.id || 'N/A'}</span>
+                                <span class="snippet-date">${formatDate(snippet.time)}</span>
+                            </div>
+                            <div class="snippet-preview">${codePreview}${hasMore ? '...' : ''}</div>
+                            <div class="snippet-actions">
+                                <button class="btn-load" onclick="loadSnippet('${randomId}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn-share" onclick="shareSnippet('${randomId}')">
+                                    <i class="fas fa-share"></i> Bagikan
+                                </button>
+                                <button class="btn-delete" onclick="deleteSnippet('${randomId}')">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </button>
+                            </div>
+                            <div class="url-display" style="margin-top: 0.5rem;">
+                                <i class="fas fa-link"></i>
+                                <a href="${BASE_URL}?code=${randomId}" target="_blank">${BASE_URL}?code=${randomId}</a>
+                                <button onclick="copySpecificUrl('${randomId}')">
+                                    <i class="fas fa-copy"></i> Salin
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Error loading snippets:', e);
+                showToast('Error loading snippets', 'error');
             }
-            
-            // Sort snippets by date (newest first)
-            snippets.sort((a, b) => new Date(b.time) - new Date(a.time));
-            
-            snippetsList.innerHTML = snippets.map(snippet => `
-                <div class="snippet-item">
-                    <div class="snippet-header">
-                        <span class="snippet-title">Kode #${snippet.id}</span>
-                        <span class="snippet-date">${formatDate(snippet.time)}</span>
-                    </div>
-                    <div class="snippet-preview">${escapeHtml(snippet.code.substring(0, 150))}${snippet.code.length > 150 ? '...' : ''}</div>
-                    <div class="snippet-actions">
-                        <button class="btn-load" onclick="loadSnippet('${snippet.randomId}')">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn-share" onclick="shareSnippet('${snippet.randomId}')">
-                            <i class="fas fa-share"></i> Bagikan
-                        </button>
-                        <button class="btn-delete" onclick="deleteSnippet('${snippet.randomId}')">
-                            <i class="fas fa-trash"></i> Hapus
-                        </button>
-                    </div>
-                    <div class="url-display" style="margin-top: 0.5rem;">
-                        <i class="fas fa-link"></i>
-                        <a href="${BASE_URL}?code=${snippet.randomId}" target="_blank">${BASE_URL}?code=${snippet.randomId}</a>
-                        <button onclick="copySpecificUrl('${snippet.randomId}')">
-                            <i class="fas fa-copy"></i> Salin
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('id-ID') + ' ' + date.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'});
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
         
         function loadSnippet(randomId) {
-            const snippet = snippets.find(s => s.randomId === randomId);
-            if (snippet) {
-                document.getElementById('htmlcode').value = snippet.code;
-                showToast('Kode dimuat ke editor!', 'success');
-                
-                // Scroll to editor
-                document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+            try {
+                const snippet = snippets.find(s => s.randomId === randomId);
+                if (snippet) {
+                    document.getElementById('htmlcode').value = snippet.code || '';
+                    showToast('Kode dimuat ke editor!', 'success');
+                    
+                    // Scroll to editor
+                    const formSection = document.querySelector('.form-section');
+                    if (formSection) {
+                        formSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                } else {
+                    showToast('Kode tidak ditemukan!', 'error');
+                }
+            } catch (e) {
+                console.error('Error loading snippet:', e);
+                showToast('Error loading snippet', 'error');
             }
         }
         
         function deleteSnippet(randomId) {
-            if (confirm('Apakah Anda yakin ingin menghapus kode ini?')) {
-                const data = JSON.parse(localStorage.getItem("user_" + currentUser));
-                data.codes = data.codes.filter(s => s.randomId !== randomId);
-                localStorage.setItem("user_" + currentUser, JSON.stringify(data));
-                loadSnippets();
-                showToast('Kode berhasil dihapus!', 'success');
+            try {
+                if (confirm('Apakah Anda yakin ingin menghapus kode ini?')) {
+                    const data = JSON.parse(localStorage.getItem("user_" + currentUser));
+                    data.codes = data.codes.filter(s => s.randomId !== randomId);
+                    localStorage.setItem("user_" + currentUser, JSON.stringify(data));
+                    loadSnippets();
+                    showToast('Kode berhasil dihapus!', 'success');
+                }
+            } catch (e) {
+                console.error('Error deleting snippet:', e);
+                showToast('Error deleting snippet', 'error');
             }
         }
 
-        // Editor
+        // Editor functions
         function saveCode() {
-            const code = document.getElementById('htmlcode').value.trim();
-            if (!code) {
-                showToast('Masukkan kode!', 'error');
-                return;
+            try {
+                const code = document.getElementById('htmlcode').value.trim();
+                if (!code) {
+                    showToast('Masukkan kode!', 'error');
+                    return;
+                }
+                
+                let data = JSON.parse(localStorage.getItem("user_" + currentUser) || '{}');
+                let maxCodes = (data.vip === 0) ? 1 : (data.vip === 1 ? 5 : 9999);
+                
+                if (data.codes && data.codes.length >= maxCodes) {
+                    showToast(`Batas penyimpanan tercapai! (Batas VIP ${data.vip} = ${maxCodes})`, 'error');
+                    return;
+                }
+                
+                // Initialize data if it doesn't exist
+                if (!data.codes) data.codes = [];
+                if (!data.nextId) data.nextId = 1;
+                
+                // Generate unique ID for the snippet
+                const newId = data.nextId++;
+                const randomId = generateRandomCode();
+                
+                data.codes.push({
+                    id: newId,
+                    randomId: randomId,
+                    code: code,
+                    time: new Date().toISOString()
+                });
+                
+                localStorage.setItem("user_" + currentUser, JSON.stringify(data));
+                showToast('Kode disimpan!', 'success');
+                
+                // Show the URL
+                const savedUrl = `${BASE_URL}?code=${randomId}`;
+                const savedUrlElement = document.getElementById('savedUrl');
+                const urlDisplay = document.getElementById('urlDisplay');
+                
+                if (savedUrlElement && urlDisplay) {
+                    savedUrlElement.textContent = savedUrl;
+                    savedUrlElement.href = savedUrl;
+                    urlDisplay.style.display = 'flex';
+                }
+                
+                loadSnippets();
+            } catch (e) {
+                console.error('Error saving code:', e);
+                showToast('Error saving code', 'error');
             }
-            
-            let data = JSON.parse(localStorage.getItem("user_" + currentUser));
-            let maxCodes = (data.vip === 0) ? 1 : (data.vip === 1 ? 5 : 9999);
-            
-            if (data.codes.length >= maxCodes) {
-                showToast(`Batas penyimpanan tercapai! (Batas VIP ${data.vip} = ${maxCodes})`, 'error');
-                return;
-            }
-            
-            // Generate unique ID for the snippet
-            const newId = data.nextId++;
-            const randomId = generateRandomCode();
-            
-            data.codes.push({
-                id: newId,
-                randomId: randomId,
-                code: code,
-                time: new Date().toISOString()
-            });
-            
-            localStorage.setItem("user_" + currentUser, JSON.stringify(data));
-            showToast('Kode disimpan!', 'success');
-            
-            // Show the URL
-            const savedUrl = `${BASE_URL}?code=${randomId}`;
-            document.getElementById('savedUrl').textContent = savedUrl;
-            document.getElementById('savedUrl').href = savedUrl;
-            document.getElementById('urlDisplay').style.display = 'flex';
-            
-            loadSnippets();
         }
         
         function clearCode() {
-            document.getElementById('htmlcode').value = "";
-            document.getElementById('urlDisplay').style.display = 'none';
-            showToast('Editor dibersihkan!', 'success');
+            try {
+                document.getElementById('htmlcode').value = "";
+                const urlDisplay = document.getElementById('urlDisplay');
+                if (urlDisplay) {
+                    urlDisplay.style.display = 'none';
+                }
+                showToast('Editor dibersihkan!', 'success');
+            } catch (e) {
+                console.error('Error clearing code:', e);
+            }
         }
         
         function previewCode() {
-            const code = document.getElementById('htmlcode').value;
-            if (!code.trim()) {
-                showToast('Tidak ada kode untuk dipratinjau!', 'error');
-                return;
+            try {
+                const code = document.getElementById('htmlcode').value;
+                if (!code.trim()) {
+                    showToast('Tidak ada kode untuk dipratinjau!', 'error');
+                    return;
+                }
+                
+                const w = window.open();
+                w.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Pratinjau Kode</title>
+                        <style>body { margin: 20px; font-family: Arial, sans-serif; }</style>
+                    </head>
+                    <body>
+                        ${code}
+                    </body>
+                    </html>
+                `);
+                w.document.close();
+            } catch (e) {
+                console.error('Error previewing code:', e);
+                showToast('Error previewing code', 'error');
             }
-            
-            const w = window.open();
-            w.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Pratinjau Kode</title>
-                    <style>body { margin: 20px; font-family: Arial, sans-serif; }</style>
-                </head>
-                <body>
-                    ${code}
-                </body>
-                </html>
-            `);
-            w.document.close();
         }
 
-        // Sharing
+        // Sharing functions
         function shareSnippet(randomId) {
-            const snippet = snippets.find(s => s.randomId === randomId);
-            if (!snippet) return;
-            
-            const shareUrl = `${BASE_URL}?code=${randomId}`;
-            document.getElementById('shareLink').textContent = shareUrl;
-            document.getElementById('shareModal').style.display = 'flex';
+            try {
+                const snippet = snippets.find(s => s.randomId === randomId);
+                if (!snippet) {
+                    showToast('Kode tidak ditemukan!', 'error');
+                    return;
+                }
+                
+                const shareUrl = `${BASE_URL}?code=${randomId}`;
+                const shareLink = document.getElementById('shareLink');
+                const shareModal = document.getElementById('shareModal');
+                
+                if (shareLink && shareModal) {
+                    shareLink.textContent = shareUrl;
+                    shareModal.style.display = 'flex';
+                }
+            } catch (e) {
+                console.error('Error sharing snippet:', e);
+                showToast('Error sharing snippet', 'error');
+            }
         }
         
         function copyShareLink() {
-            const shareLink = document.getElementById('shareLink').textContent;
-            navigator.clipboard.writeText(shareLink)
-                .then(() => showToast('Tautan disalin ke clipboard!', 'success'))
-                .catch(() => showToast('Gagal menyalin tautan', 'error'));
+            try {
+                const shareLink = document.getElementById('shareLink');
+                if (shareLink) {
+                    navigator.clipboard.writeText(shareLink.textContent)
+                        .then(() => showToast('Tautan disalin ke clipboard!', 'success'))
+                        .catch(() => showToast('Gagal menyalin tautan', 'error'));
+                }
+            } catch (e) {
+                console.error('Error copying share link:', e);
+                showToast('Error copying share link', 'error');
+            }
         }
         
         function copyUrl() {
-            const url = document.getElementById('savedUrl').href;
-            navigator.clipboard.writeText(url)
-                .then(() => showToast('URL disalin ke clipboard!', 'success'))
-                .catch(() => showToast('Gagal menyalin URL', 'error'));
+            try {
+                const savedUrl = document.getElementById('savedUrl');
+                if (savedUrl) {
+                    navigator.clipboard.writeText(savedUrl.href)
+                        .then(() => showToast('URL disalin ke clipboard!', 'success'))
+                        .catch(() => showToast('Gagal menyalin URL', 'error'));
+                }
+            } catch (e) {
+                console.error('Error copying URL:', e);
+                showToast('Error copying URL', 'error');
+            }
         }
         
         function copySpecificUrl(randomId) {
-            const url = `${BASE_URL}?code=${randomId}`;
-            navigator.clipboard.writeText(url)
-                .then(() => showToast('URL disalin ke clipboard!', 'success'))
-                .catch(() => showToast('Gagal menyalin URL', 'error'));
-        }
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+            try {
+                const url = `${BASE_URL}?code=${randomId}`;
+                navigator.clipboard.writeText(url)
+                    .then(() => showToast('URL disalin ke clipboard!', 'success'))
+                    .catch(() => showToast('Gagal menyalin URL', 'error'));
+            } catch (e) {
+                console.error('Error copying specific URL:', e);
+                showToast('Error copying URL', 'error');
+            }
         }
 
         // Load shared code from URL
         function loadSharedCode(codeId) {
-            // Search through all users to find the code
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('user_')) {
-                    const userData = JSON.parse(localStorage.getItem(key));
-                    const snippet = userData.codes.find(s => s.randomId === codeId);
-                    
-                    if (snippet) {
-                        // Show the code in a preview
-                        const w = window.open();
-                        w.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Kode Dibagikan</title>
-                                <style>body { margin: 20px; font-family: Arial, sans-serif; }</style>
-                            </head>
-                            <body>
-                                ${snippet.code}
-                            </body>
-                            </html>
-                        `);
-                        w.document.close();
-                        return;
+            try {
+                // Search through all users to find the code
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('user_')) {
+                        try {
+                            const userData = JSON.parse(localStorage.getItem(key));
+                            if (userData && userData.codes) {
+                                const snippet = userData.codes.find(s => s.randomId === codeId);
+                                
+                                if (snippet) {
+                                    // Show the code in a preview
+                                    const w = window.open();
+                                    w.document.write(`
+                                        <!DOCTYPE html>
+                                        <html>
+                                        <head>
+                                            <title>Kode Dibagikan</title>
+                                            <style>body { margin: 20px; font-family: Arial, sans-serif; }</style>
+                                        </head>
+                                        <body>
+                                            ${snippet.code || 'Kode tidak tersedia'}
+                                        </body>
+                                        </html>
+                                    `);
+                                    w.document.close();
+                                    return;
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error parsing user data for shared code:', e);
+                        }
                     }
                 }
+                
+                // If code not found, show error
+                showToast('Kode tidak ditemukan!', 'error');
+            } catch (e) {
+                console.error('Error loading shared code:', e);
+                showToast('Error loading shared code', 'error');
             }
-            
-            // If code not found, show error
-            showToast('Kode tidak ditemukan!', 'error');
-        }
-
-        // Toast notifications
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const icons = {
-                success: 'fas fa-check-circle',
-                error: 'fas fa-exclamation-circle',
-                warning: 'fas fa-exclamation-triangle'
-            };
-            
-            toast.innerHTML = `<i class="${icons[type]}"></i> ${message}`;
-            toast.className = `toast toast-${type}`;
-            toast.style.display = 'flex';
-            
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 4000);
         }
     </script>
 </body>
-                    </html>
+    </html>
