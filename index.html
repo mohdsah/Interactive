@@ -453,6 +453,7 @@
         .snippet-actions {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
         
         .snippet-actions button {
@@ -494,6 +495,15 @@
             background: #dc2626;
         }
         
+        .btn-web {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-web:hover {
+            background: #0d9c6d;
+        }
+        
         .no-snippets {
             text-align: center;
             padding: 3rem 2rem;
@@ -529,6 +539,14 @@
             width: 90%;
             box-shadow: var(--shadow-lg);
             animation: modalFadeIn 0.3s ease;
+        }
+        
+        .web-modal .modal-content {
+            max-width: 90%;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            flex-direction: column;
         }
         
         @keyframes modalFadeIn {
@@ -576,6 +594,21 @@
             justify-content: flex-end;
             gap: 0.8rem;
             margin-top: 1.5rem;
+        }
+        
+        /* Web View Iframe */
+        .web-view-container {
+            flex: 1;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .web-view-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
         
         /* Admin Panel */
@@ -724,6 +757,15 @@
             
             .vip-controls {
                 align-self: flex-end;
+            }
+            
+            .snippet-actions {
+                flex-direction: column;
+            }
+            
+            .snippet-actions button {
+                width: 100%;
+                justify-content: center;
             }
         }
         
@@ -883,6 +925,25 @@
                 <button class="btn-secondary" onclick="closeModal('shareModal')">Tutup</button>
                 <button class="btn-primary" onclick="copyShareLink()">
                     <i class="fas fa-copy"></i> Salin Tautan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Web View Modal -->
+    <div class="modal web-modal" id="webViewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-globe"></i> Tampilan Web</h3>
+                <button class="modal-close" onclick="closeModal('webViewModal')">&times;</button>
+            </div>
+            <div class="web-view-container">
+                <iframe id="webViewIframe" class="web-view-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('webViewModal')">Tutup</button>
+                <button class="btn-primary" onclick="openInNewTab()">
+                    <i class="fas fa-external-link-alt"></i> Buka di Tab Baru
                 </button>
             </div>
         </div>
@@ -1277,6 +1338,9 @@
                                 <button class="btn-load" onclick="loadSnippet('${randomId}')">
                                     <i class="fas fa-edit"></i> Edit
                                 </button>
+                                <button class="btn-web" onclick="viewWeb('${randomId}')">
+                                    <i class="fas fa-globe"></i> View Web
+                                </button>
                                 <button class="btn-share" onclick="shareSnippet('${randomId}')">
                                     <i class="fas fa-share"></i> Bagikan
                                 </button>
@@ -1318,6 +1382,92 @@
             } catch (e) {
                 console.error('Error loading snippet:', e);
                 showToast('Error loading snippet', 'error');
+            }
+        }
+        
+        // New function: View Web
+        function viewWeb(randomId) {
+            try {
+                const snippet = snippets.find(s => s.randomId === randomId);
+                if (snippet && snippet.code) {
+                    const iframe = document.getElementById('webViewIframe');
+                    const webViewModal = document.getElementById('webViewModal');
+                    
+                    // Create a complete HTML document with the code
+                    const htmlContent = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>HTML Preview</title>
+                            <style>
+                                body { 
+                                    font-family: Arial, sans-serif; 
+                                    margin: 20px;
+                                    background: white;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${snippet.code}
+                        </body>
+                        </html>
+                    `;
+                    
+                    // Set the iframe content
+                    iframe.contentDocument.open();
+                    iframe.contentDocument.write(htmlContent);
+                    iframe.contentDocument.close();
+                    
+                    // Show the modal
+                    webViewModal.style.display = 'flex';
+                    
+                    // Store the current snippet ID for opening in new tab
+                    iframe.dataset.snippetId = randomId;
+                } else {
+                    showToast('Kode tidak ditemukan atau kosong!', 'error');
+                }
+            } catch (e) {
+                console.error('Error viewing web:', e);
+                showToast('Error viewing web content', 'error');
+            }
+        }
+        
+        // Function to open web view in new tab
+        function openInNewTab() {
+            try {
+                const iframe = document.getElementById('webViewIframe');
+                const snippetId = iframe.dataset.snippetId;
+                const snippet = snippets.find(s => s.randomId === snippetId);
+                
+                if (snippet && snippet.code) {
+                    const newWindow = window.open();
+                    newWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>HTML Preview - Kode #${snippet.id}</title>
+                            <style>
+                                body { 
+                                    font-family: Arial, sans-serif; 
+                                    margin: 20px;
+                                    background: white;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${snippet.code}
+                        </body>
+                        </html>
+                    `);
+                    newWindow.document.close();
+                }
+            } catch (e) {
+                console.error('Error opening in new tab:', e);
+                showToast('Error opening in new tab', 'error');
             }
         }
         
